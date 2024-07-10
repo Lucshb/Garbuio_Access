@@ -4,6 +4,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 import pandas as pd
 from datetime import datetime
 import logging
+import sqlite3
 
 # Configuração do logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -15,6 +16,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+DATABASE = 'database.db'
+
 class User(UserMixin):
     def __init__(self, id, email, password, role, dashboards, name):
         self.id = id
@@ -23,6 +26,26 @@ class User(UserMixin):
         self.role = role
         self.dashboards = dashboards
         self.name = name
+
+def get_db():
+    db = sqlite3.connect(DATABASE)
+    return db
+
+def create_tables():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_logs (
+            id INTEGER PRIMARY KEY,
+            email TEXT NOT NULL,
+            action TEXT NOT NULL,
+            timestamp TEXT NOT NULL
+        )
+    ''')
+    db.commit()
+    db.close()
+
+create_tables()
 
 def load_users():
     df = pd.read_excel('users.xlsx')
@@ -37,23 +60,14 @@ users = load_users()
 def load_user(user_id):
     return users.get(user_id)
 
-# Função para registrar logs no Excel
+# Função para registrar logs no SQLite
 def log_user_activity(user_email, action):
-    log_file = os.path.join(os.path.dirname(__file__), 'user_logs.xlsx')
+    db = get_db()
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
-    logging.info(f'Logging activity: {user_email}, {action}, {now}')
-    logging.info(f'Log file path: {log_file}')
-
-    try:
-        df = pd.read_excel(log_file)
-    except FileNotFoundError:
-        logging.warning('Log file not found. Creating a new one.')
-        df = pd.DataFrame(columns=['email', 'action', 'timestamp'])
-
-    new_log = pd.DataFrame([[user_email, action, now]], columns=['email', 'action', 'timestamp'])
-    df = pd.concat([df, new_log], ignore_index=True)
-    df.to_excel(log_file, index=False)
+    cursor = db.cursor()
+    cursor.execute('INSERT INTO user_logs (email, action, timestamp) VALUES (?, ?, ?)', (user_email, action, now))
+    db.commit()
+    db.close()
     logging.info('Activity logged successfully')
 
 @app.route('/')
