@@ -5,6 +5,7 @@ import pandas as pd
 from datetime import datetime
 import logging
 import sqlite3
+import pytz
 
 # Configuração do logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -63,7 +64,7 @@ def load_user(user_id):
 # Função para registrar logs no SQLite
 def log_user_activity(user_email, action):
     db = get_db()
-    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
     cursor = db.cursor()
     cursor.execute('INSERT INTO user_logs (email, action, timestamp) VALUES (?, ?, ?)', (user_email, action, now))
     db.commit()
@@ -82,7 +83,7 @@ def login():
         user = users.get(email)
         if user and user.password == password:
             login_user(user)
-            session['start_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Inicializa o start_time no login
+            session['start_time'] = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')  # Inicializa o start_time no login
             log_user_activity(user.email, 'login')  # Registra o login
             return redirect(url_for('dashboard'))
         return 'Invalid credentials'
@@ -101,7 +102,7 @@ def logout():
     start_time_str = session.pop('start_time', None)
     if start_time_str:
         start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
-        session_duration = datetime.now() - start_time
+        session_duration = datetime.now(pytz.timezone('America/Sao_Paulo')) - start_time
         log_user_activity(current_user.email, f'logout (duration: {session_duration})')  # Registra o logout com duração
     else:
         log_user_activity(current_user.email, 'logout (duration: unknown)')
