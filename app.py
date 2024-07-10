@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, g, session
+from flask import Flask, render_template, request, redirect, url_for, g, session, send_from_directory
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import pandas as pd
 from datetime import datetime
@@ -107,6 +107,11 @@ def logout():
         log_user_activity(current_user.email, 'logout (duration: unknown)')
     logout_user()
     return redirect(url_for('login'))
+
+@app.route('/download/<filename>')
+@login_required
+def download_file(filename):
+    return send_from_directory(os.path.dirname(__file__), filename, as_attachment=True)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
