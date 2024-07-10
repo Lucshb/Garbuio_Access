@@ -35,7 +35,7 @@ def load_user(user_id):
 
 # Função para registrar logs no Excel
 def log_user_activity(user_email, action):
-    log_file = 'user_logs.xlsx'
+    log_file = os.path.join(os.path.dirname(__file__), 'user_logs.xlsx')
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
     try:
