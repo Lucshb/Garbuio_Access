@@ -47,6 +47,10 @@ def log_user_activity(user_email, action):
     df = pd.concat([df, new_log], ignore_index=True)
     df.to_excel(log_file, index=False)
 
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -59,14 +63,14 @@ def login():
             log_user_activity(user.email, 'login')  # Registra o login
             return redirect(url_for('dashboard'))
         return 'Invalid credentials'
-    return render_template('templates/login.html')
+    return render_template('login.html')
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
     dashboards = current_user.dashboards.split(',')
     titles = ["Abastecimento", "Suprimentos"]  # Títulos específicos para os dashboards
-    return render_template('templates/dashboard.html', dashboards=dashboards, titles=titles, user_name=current_user.name, zip=zip)
+    return render_template('dashboard.html', dashboards=dashboards, titles=titles, user_name=current_user.name, zip=zip)
 
 @app.route('/logout')
 @login_required
