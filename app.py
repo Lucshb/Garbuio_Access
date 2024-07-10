@@ -1,11 +1,10 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, g, session, send_from_directory, send_file
+from flask import Flask, render_template, request, redirect, url_for, g, session, send_from_directory
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import pandas as pd
 from datetime import datetime
 import logging
 import sqlite3
-import pytz
 
 # Configuração do logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -64,7 +63,7 @@ def load_user(user_id):
 # Função para registrar logs no SQLite
 def log_user_activity(user_email, action):
     db = get_db()
-    now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     cursor = db.cursor()
     cursor.execute('INSERT INTO user_logs (email, action, timestamp) VALUES (?, ?, ?)', (user_email, action, now))
     db.commit()
@@ -83,7 +82,7 @@ def login():
         user = users.get(email)
         if user and user.password == password:
             login_user(user)
-            session['start_time'] = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')  # Inicializa o start_time no login
+            session['start_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Inicializa o start_time no login
             log_user_activity(user.email, 'login')  # Registra o login
             return redirect(url_for('dashboard'))
         return 'Invalid credentials'
@@ -100,17 +99,10 @@ def dashboard():
 @login_required
 def logout():
     start_time_str = session.pop('start_time', None)
-    logging.info(f'Logout start_time_str: {start_time_str}')
     if start_time_str:
-        try:
-            start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
-            logging.info(f'Logout start_time: {start_time}')
-            session_duration = datetime.now(pytz.timezone('America/Sao_Paulo')) - start_time
-            logging.info(f'Logout session_duration: {session_duration}')
-            log_user_activity(current_user.email, f'logout (duration: {session_duration})')  # Registra o logout com duração
-        except Exception as e:
-            logging.error(f'Error during logout: {e}')
-            log_user_activity(current_user.email, 'logout (duration: unknown)')
+        start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
+        session_duration = datetime.now() - start_time
+        log_user_activity(current_user.email, f'logout (duration: {session_duration})')  # Registra o logout com duração
     else:
         log_user_activity(current_user.email, 'logout (duration: unknown)')
     logout_user()
@@ -119,12 +111,7 @@ def logout():
 @app.route('/download/<filename>')
 @login_required
 def download_file(filename):
-    try:
-        file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), filename)
-        return send_file(file_path, as_attachment=True)
-    except Exception as e:
-        logging.error(f'Error during file download: {e}')
-        return "Error: Unable to download the file."
+    return send_from_directory(os.path.dirname(__file__), filename, as_attachment=True)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
