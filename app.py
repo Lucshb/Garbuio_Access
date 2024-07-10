@@ -77,7 +77,7 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
+    if request.method == 'POST'):
         email = request.form['email']
         password = request.form['password']
         user = users.get(email)
@@ -119,7 +119,11 @@ def logout():
 @app.route('/download/<filename>')
 @login_required
 def download_file(filename):
-    return send_from_directory(os.path.dirname(__file__), filename, as_attachment=True)
+    try:
+        return send_from_directory(os.path.dirname(__file__), filename, as_attachment=True)
+    except Exception as e:
+        logging.error(f'Error during file download: {e}')
+        return "Error: Unable to download the file."
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
