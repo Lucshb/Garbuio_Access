@@ -116,11 +116,11 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-@app.route('/download/<filename>')
+@app.route('/download/<path:filename>')
 @login_required
 def download_file(filename):
     try:
-        return send_from_directory(os.path.dirname(__file__), filename, as_attachment=True)
+        return send_from_directory(os.path.abspath(os.path.dirname(__file__)), filename, as_attachment=True)
     except Exception as e:
         logging.error(f'Error during file download: {e}')
         return "Error: Unable to download the file."
