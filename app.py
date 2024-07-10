@@ -59,7 +59,7 @@ def login():
             log_user_activity(user.email, 'login')  # Registra o login
             return redirect(url_for('dashboard'))
         return 'Invalid credentials'
-    return render_template('login.html')
+    return render_template('templates/login.html')
 
 @app.route('/dashboard')
 @login_required
