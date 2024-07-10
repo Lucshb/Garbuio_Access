@@ -7,10 +7,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
-    <img src="{{ url_for('static', filename='images/DSC_0055.png') }}" alt="Background" class="background-image">
     <div class="login-container">
-        <form method="post" action="{{ url_for('login') }}">
-            <h2>Login</h2>
+        <h2>Login</h2>
+        <form method="POST">
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Login</button>
