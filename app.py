@@ -3,6 +3,10 @@ from flask import Flask, render_template, request, redirect, url_for, g, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import pandas as pd
 from datetime import datetime
+import logging
+
+# Configuração do logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
 app.secret_key = 'secretKey'
@@ -38,14 +42,19 @@ def log_user_activity(user_email, action):
     log_file = os.path.join(os.path.dirname(__file__), 'user_logs.xlsx')
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
+    logging.info(f'Logging activity: {user_email}, {action}, {now}')
+    logging.info(f'Log file path: {log_file}')
+
     try:
         df = pd.read_excel(log_file)
     except FileNotFoundError:
+        logging.warning('Log file not found. Creating a new one.')
         df = pd.DataFrame(columns=['email', 'action', 'timestamp'])
 
     new_log = pd.DataFrame([[user_email, action, now]], columns=['email', 'action', 'timestamp'])
     df = pd.concat([df, new_log], ignore_index=True)
     df.to_excel(log_file, index=False)
+    logging.info('Activity logged successfully')
 
 @app.route('/')
 def index():
