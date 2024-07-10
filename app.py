@@ -66,7 +66,7 @@ def login():
 def dashboard():
     dashboards = current_user.dashboards.split(',')
     titles = ["Abastecimento", "Suprimentos"]  # Títulos específicos para os dashboards
-    return render_template('dashboard.html', dashboards=dashboards, titles=titles, user_name=current_user.name, zip=zip)
+    return render_template('templates/dashboard.html', dashboards=dashboards, titles=titles, user_name=current_user.name, zip=zip)
 
 @app.route('/logout')
 @login_required
