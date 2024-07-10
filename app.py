@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, g, session, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, g, session, send_from_directory, send_file
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import pandas as pd
 from datetime import datetime
@@ -116,11 +116,12 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-@app.route('/download/<path:filename>')
+@app.route('/download/<filename>')
 @login_required
 def download_file(filename):
     try:
-        return send_from_directory(os.path.abspath(os.path.dirname(__file__)), filename, as_attachment=True)
+        file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), filename)
+        return send_file(file_path, as_attachment=True)
     except Exception as e:
         logging.error(f'Error during file download: {e}')
         return "Error: Unable to download the file."
