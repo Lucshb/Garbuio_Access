@@ -100,10 +100,17 @@ def dashboard():
 @login_required
 def logout():
     start_time_str = session.pop('start_time', None)
+    logging.info(f'Logout start_time_str: {start_time_str}')
     if start_time_str:
-        start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
-        session_duration = datetime.now(pytz.timezone('America/Sao_Paulo')) - start_time
-        log_user_activity(current_user.email, f'logout (duration: {session_duration})')  # Registra o logout com duração
+        try:
+            start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
+            logging.info(f'Logout start_time: {start_time}')
+            session_duration = datetime.now(pytz.timezone('America/Sao_Paulo')) - start_time
+            logging.info(f'Logout session_duration: {session_duration}')
+            log_user_activity(current_user.email, f'logout (duration: {session_duration})')  # Registra o logout com duração
+        except Exception as e:
+            logging.error(f'Error during logout: {e}')
+            log_user_activity(current_user.email, 'logout (duration: unknown)')
     else:
         log_user_activity(current_user.email, 'logout (duration: unknown)')
     logout_user()
