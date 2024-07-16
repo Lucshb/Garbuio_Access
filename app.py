@@ -21,6 +21,7 @@ class User(UserMixin):
         self.name = name
 
 def load_users():
+    print("Loading users from users.xlsx")  # Debug log
     df = pd.read_excel('users.xlsx')
     users = {}
     for _, row in df.iterrows():
@@ -38,6 +39,7 @@ users = load_users()
 
 @login_manager.user_loader
 def load_user(user_id):
+    print(f"Loading user: {user_id}")  # Debug log
     return users.get(user_id)
 
 def log_user_activity(user_email, action):
@@ -113,4 +115,5 @@ def logout():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
+    print(f"Starting app on port {port}")  # Debug log
     app.run(host='0.0.0.0', port=port)
