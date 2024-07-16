@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: #051B29;
     margin: 0;
     padding: 0;
     display: flex;
@@ -25,6 +25,37 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    background-color: #123456;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: white;
+}
+
+.welcome-message {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #FFFFFF;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.logout-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.logout-image {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    margin-left: 10px;
+}
+
+.logout-button:hover .logout-image {
+    opacity: 0.8;
 }
 
 .dashboards {
@@ -37,8 +68,20 @@ body {
     height: 100%;
 }
 
+.dashboard-item {
+    margin-bottom: 20px;
+}
+
 .dashboards iframe {
     width: 100%;
-    height: calc(100vh - 100px); /* Ajustar a altura com base na altura do cabeçalho */
+    height: calc(100vh - 150px);
     border: 0;
+    margin-bottom: 20px;
+}
+
+.dashboard-title {
+    color: white;
+    margin-bottom: 10px;
+    font-size: 1.5em;
+    font-weight: bold;
 }
