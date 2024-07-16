@@ -17,7 +17,7 @@ class User(UserMixin):
         self.email = email
         self.password = password
         self.role = role
-        self.dashboards = str(dashboards).split(',')  # Garantindo que dashboards seja uma string
+        self.dashboards = str(dashboards).split(',')
         self.name = name
 
 def load_users():
