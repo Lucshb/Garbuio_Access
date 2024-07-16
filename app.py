@@ -64,7 +64,8 @@ def log_user_activity(user_email, action):
 
 @app.route('/')
 def index():
-    return "Index route is working!"
+    print("Index route accessed, redirecting to login")  # Debug log
+    return redirect(url_for('login'))
 
 @app.route('/test')
 def test():
