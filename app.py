@@ -62,6 +62,14 @@ def log_user_activity(user_email, action):
     df = pd.concat([df, new_log], ignore_index=True)
     df.to_excel(log_file, index=False)
 
+@app.route('/')
+def index():
+    return "Index route is working!"
+
+@app.route('/test')
+def test():
+    return "Test route is working!"
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     print("Login route accessed")  # Debug log
