@@ -4,19 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
 </head>
 <body>
     <div class="dashboard-container">
         <header class="dashboard-header">
-            <h2>Bem vindo, {{ user_name }}</h2>
-            <a href="{{ url_for('logout') }}">Logout</a>
+            <h2 class="welcome-message">Bem vindo, {{ user_name }}! Você está acessando o dashboard gerencial da Garbuio.</h2>
+            <a href="{{ url_for('logout') }}" class="logout-button">
+                <img src="{{ url_for('static', filename='images/logout.png') }}" alt="Logout" class="logout-image">
+            </a>
         </header>
         <div class="dashboards">
-            {% for dashboard, title in zip(dashboards, titles) %}
+            {% for dashboard in user_dashboards %}
                 <div class="dashboard-item">
-                    <h3>{{ title }}</h3> <!-- Título para cada dashboard -->
-                    <iframe src="{{ dashboard }}" frameborder="0"></iframe>
+                    <h3 class="dashboard-title">{{ dashboard.title }}</h3>
+                    <iframe src="{{ dashboard.url }}" frameborder="0"></iframe>
                 </div>
             {% endfor %}
         </div>
