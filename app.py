@@ -65,7 +65,7 @@ def login():
             log_user_activity(user.email, 'login')
             return redirect(url_for('dashboard'))
         return 'Invalid credentials'
-    return render_template('templates/login.html')
+    return render_template('login.html')
 
 @app.route('/dashboard')
 @login_required
@@ -94,7 +94,7 @@ def dashboard():
             if user_db.strip() in db['url']:
                 user_dashboards.append(db)
     
-    return render_template('templates/dashboard.html', user_dashboards=user_dashboards, user_name=current_user.name)
+    return render_template('dashboard.html', user_dashboards=user_dashboards, user_name=current_user.name)
 
 @app.route('/logout')
 @login_required
