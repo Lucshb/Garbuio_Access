@@ -4,7 +4,6 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 import pandas as pd
 from datetime import datetime
 
-# Definindo a aplicação Flask antes de qualquer uso
 app = Flask(__name__)
 app.secret_key = 'secretKey'
 
@@ -18,12 +17,18 @@ class User(UserMixin):
         self.email = email
         self.password = password
         self.role = role
-        self.dashboards = str(dashboards).split(',')  # Garantindo que dashboards seja uma string
+        self.dashboards = str(dashboards).split(',')
         self.name = name
 
 def load_users():
     print("Loading users from users.xlsx")  # Debug log
-    df = pd.read_excel('users.xlsx')
+    file_path = os.path.join(os.getcwd(), 'users.xlsx')
+    print(f"File path: {file_path}")  # Debug log
+    if not os.path.exists(file_path):
+        print("File not found")  # Debug log
+        return {}
+
+    df = pd.read_excel(file_path)
     users = {}
     for _, row in df.iterrows():
         users[row['email']] = User(
@@ -34,6 +39,7 @@ def load_users():
             row['dashboards'], 
             row['name']
         )
+    print(f"Users loaded: {list(users.keys())}")  # Debug log
     return users
 
 users = load_users()
@@ -121,3 +127,5 @@ def logout():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
+    print(f"Starting app on port {port}")  # Debug log
+    app.run(host='0.0.0.0', port=port)
