@@ -90,7 +90,7 @@ def login():
         user = users.get(email)
         if user and user.password == password:
             login_user(user)
-            session['start_time'] = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
+            session['start_time'] = datetime.now(pytz.timezone('America/Sao_Paulo')).isoformat()
             log_user_activity(user.email, 'login')
             print(f"User logged in: {user.email}, Role: {user.role}")
             return redirect(url_for('dashboard'))
@@ -135,7 +135,7 @@ def logout():
         print("Logout route accessed")
         start_time_str = session.pop('start_time', None)
         if start_time_str:
-            start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
+            start_time = datetime.fromisoformat(start_time_str)
             session_duration = datetime.now(pytz.timezone('America/Sao_Paulo')) - start_time
             log_user_activity(current_user.email, f'logout (duration: {session_duration})')
         else:
