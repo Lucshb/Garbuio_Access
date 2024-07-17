@@ -150,7 +150,7 @@ def view_logs():
     cursor.execute('SELECT level, message, timestamp FROM app_logs ORDER BY timestamp DESC')
     logs = cursor.fetchall()
     
-    print(f"Logs fetched from database: {logs}")  # Adicionado para depuração
+    print(f"Logs fetched from database: {logs}")
     return render_template('view_logs.html', logs=logs)
 
 @app.route('/dashboard')
