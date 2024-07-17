@@ -111,13 +111,13 @@ def view_logs():
 
 @app.before_request
 def setup_logging():
-    if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
-        handler = SQLiteHandler()
-        handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(message)s')
-        handler.setFormatter(formatter)
-        app.logger.addHandler(handler)
-        print("SQLiteHandler added to logger")
+    if not app.debug:
+        if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
+            handler = SQLiteHandler()
+            handler.setLevel(logging.INFO)
+            formatter = logging.Formatter('%(message)s')
+            handler.setFormatter(formatter)
+            app.logger.addHandler(handler)
 
 @app.route('/')
 def index():
@@ -201,16 +201,8 @@ def download_logs():
 
 @app.route('/test_db_write')
 def test_db_write():
-    try:
-        db = get_db()
-        cursor = db.cursor()
-        now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
-        cursor.execute('INSERT INTO app_logs (level, message, timestamp) VALUES (?, ?, ?)', 
-                       ('INFO', 'Test write to database', now))
-        db.commit()
-        return "Write successful"
-    except Exception as e:
-        return f"Write failed: {e}"
+    app.logger.info("Test write to database")
+    return "Write successful"
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
