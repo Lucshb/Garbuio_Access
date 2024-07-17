@@ -83,13 +83,32 @@ def log_user_activity(user_email, action):
 
 class SQLiteHandler(logging.Handler):
     def emit(self, record):
-        log_entry = self.format(record)
-        db = get_db()
-        cursor = db.cursor()
-        now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
-        cursor.execute('INSERT INTO app_logs (level, message, timestamp) VALUES (?, ?, ?)', 
-                       (record.levelname, log_entry, now))
-        db.commit()
+        try:
+            log_entry = self.format(record)
+            db = get_db()
+            cursor = db.cursor()
+            now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
+            cursor.execute('INSERT INTO app_logs (level, message, timestamp) VALUES (?, ?, ?)', 
+                           (record.levelname, log_entry, now))
+            db.commit()
+            print(f"Log inserted: {log_entry}")
+        except Exception as e:
+            print(f"Error logging to database: {e}")
+
+@app.route('/view_logs')
+@login_required
+def view_logs():
+    if current_user.role != 'admin':
+        return 'Access denied', 403
+    
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT level, message, timestamp FROM app_logs ORDER BY timestamp DESC')
+    logs = cursor.fetchall()
+    
+    print(f"Logs fetched: {logs}")  # Adicionado para depuração
+    return render_template('view_logs.html', logs=logs)
+
 
 @app.before_request
 def setup_logging():
