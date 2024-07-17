@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import logging
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import pandas as pd
@@ -27,6 +28,12 @@ def init_db():
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             email TEXT NOT NULL,
                             action TEXT NOT NULL,
+                            timestamp TEXT NOT NULL
+                          )''')
+        cursor.execute('''CREATE TABLE IF NOT EXISTS app_logs (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            level TEXT NOT NULL,
+                            message TEXT NOT NULL,
                             timestamp TEXT NOT NULL
                           )''')
         db.commit()
@@ -74,6 +81,25 @@ def log_user_activity(user_email, action):
     cursor.execute('INSERT INTO user_logs (email, action, timestamp) VALUES (?, ?, ?)', (user_email, action, now))
     db.commit()
 
+class SQLiteHandler(logging.Handler):
+    def emit(self, record):
+        log_entry = self.format(record)
+        db = get_db()
+        cursor = db.cursor()
+        now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
+        cursor.execute('INSERT INTO app_logs (level, message, timestamp) VALUES (?, ?, ?)', 
+                       (record.levelname, log_entry, now))
+        db.commit()
+
+@app.before_first_request
+def setup_logging():
+    if not app.debug:
+        handler = SQLiteHandler()
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(message)s')
+        handler.setFormatter(formatter)
+        app.logger.addHandler(handler)
+
 @app.route('/')
 def index():
     return redirect(url_for('login'))
@@ -92,7 +118,7 @@ def login():
             login_user(user)
             session['start_time'] = datetime.now(pytz.timezone('America/Sao_Paulo')).isoformat()
             log_user_activity(user.email, 'login')
-            print(f"User logged in: {user.email}, Role: {user.role}")
+            app.logger.info(f"User logged in: {user.email}, Role: {user.role}")
             return redirect(url_for('dashboard'))
         return 'Invalid credentials'
     return render_template('login.html')
@@ -125,14 +151,14 @@ def dashboard():
             if user_db.strip() in db['url']:
                 user_dashboards.append(db)
     
-    print(f"Current user role: {current_user.role}")
+    app.logger.info(f"Current user role: {current_user.role}")
     return render_template('dashboard.html', user_dashboards=user_dashboards, user_name=current_user.name, user_role=current_user.role)
 
 @app.route('/logout')
 @login_required
 def logout():
     try:
-        print("Logout route accessed")
+        app.logger.info("Logout route accessed")
         start_time_str = session.pop('start_time', None)
         if start_time_str:
             start_time = datetime.fromisoformat(start_time_str)
@@ -141,10 +167,10 @@ def logout():
         else:
             log_user_activity(current_user.email, 'logout (duration: unknown)')
         logout_user()
-        print("Logout successful")
+        app.logger.info("Logout successful")
         return redirect(url_for('login'))
     except Exception as e:
-        print(f"Error during logout: {e}")
+        app.logger.error(f"Error during logout: {e}")
         return 'Internal Server Error', 500
 
 @app.route('/download_logs')
