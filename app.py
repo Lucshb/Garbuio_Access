@@ -80,7 +80,6 @@ def log_user_activity(user_email, action):
     now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
     cursor.execute('INSERT INTO user_logs (email, action, timestamp) VALUES (?, ?, ?)', (user_email, action, now))
     db.commit()
-    print(f"User activity logged: {user_email}, {action}, {now}")
 
 class SQLiteHandler(logging.Handler):
     def emit(self, record):
@@ -96,6 +95,16 @@ class SQLiteHandler(logging.Handler):
         except Exception as e:
             print(f"Error logging to database: {e}")
 
+@app.before_first_request
+def setup_logging():
+    if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
+        handler = SQLiteHandler()
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(message)s')
+        handler.setFormatter(formatter)
+        app.logger.addHandler(handler)
+        print("SQLiteHandler added to logger")
+
 @app.route('/view_logs')
 @login_required
 def view_logs():
@@ -107,18 +116,8 @@ def view_logs():
     cursor.execute('SELECT level, message, timestamp FROM app_logs ORDER BY timestamp DESC')
     logs = cursor.fetchall()
     
-    print(f"Logs fetched from database: {logs}")
+    print(f"Logs fetched from database: {logs}")  # Adicionado para depuração
     return render_template('view_logs.html', logs=logs)
-
-@app.before_request
-def setup_logging():
-    if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
-        handler = SQLiteHandler()
-        handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(message)s')
-        handler.setFormatter(formatter)
-        app.logger.addHandler(handler)
-        app.logger.info('SQLiteHandler added to logger')
 
 @app.route('/')
 def index():
@@ -146,8 +145,8 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    print("Dashboard route accessed")
-    user_dashboards = [
+    print("Dashboard route accessed")  # Debug log
+    all_dashboards = [
         {"url": "https://app.powerbi.com/view?r=eyJrIjoiMmU1MTBmYTItMmY3MS00NjYzLTg3ZWUtOWQyYzI1YTgyYTQxIiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Central de BIs"},
         {"url": "https://app.powerbi.com/reportEmbed?reportId=196b835a-4b66-4f9d-b7e0-1d63d4f02e88&autoAuth=true&ctid=cc2a95ea-335c-443b-8443-e9ad33ff9e04", "title": "Faturamento"},
         {"url": "https://app.powerbi.com/view?r=eyJrIjoiMTljYjYxOGQtNDMzMy00MTE2LTkxMzYtNmZhMGM1MmMzZjgxIiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Controladoria Anderson"},
@@ -164,6 +163,12 @@ def dashboard():
         {"url": "https://app.powerbi.com/reportEmbed?reportId=192565df-af8d-4e7e-bf7b-d5ca570095b4&autoAuth=true&ctid=cc2a95ea-335c-443b-8443-e9ad33ff9e04", "title": "Contas a Pagar"},
         {"url": "https://app.powerbi.com/reportEmbed?reportId=93939e7b-780a-486c-b40d-22dee554aef1&autoAuth=true&ctid=cc2a95ea-335c-443b-8443-e9ad33ff9e04", "title": "Pátio"},
     ]
+    
+    user_dashboards = []
+    for db in all_dashboards:
+        for user_db in current_user.dashboards:
+            if user_db.strip() in db['url']:
+                user_dashboards.append(db)
     
     app.logger.info(f"Current user role: {current_user.role}")
     return render_template('dashboard.html', user_dashboards=user_dashboards, user_name=current_user.name, user_role=current_user.role)
@@ -194,10 +199,19 @@ def download_logs():
         return send_file(DATABASE, as_attachment=True)
     return 'Access denied', 403
 
+@app.route('/test_db_write')
+def test_db_write():
+    try:
+        log_user_activity('test@example.com', 'Test write')
+        app.logger.info('Test write to database')
+        return 'Write successful'
+    except Exception as e:
+        return str(e), 500
+
 @app.route('/add_log')
 def add_log():
-    app.logger.info('Test write to database')
-    return 'Manual log added'
+    app.logger.info("Manual log added")
+    return "Manual log added"
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
