@@ -92,7 +92,7 @@ def login():
             login_user(user)
             session['start_time'] = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
             log_user_activity(user.email, 'login')
-            print(f"User logged in: {user.email}, Role: {user.role}")  # Adicionado para depuração
+            print(f"User logged in: {user.email}, Role: {user.role}")
             return redirect(url_for('dashboard'))
         return 'Invalid credentials'
     return render_template('login.html')
@@ -125,21 +125,27 @@ def dashboard():
             if user_db.strip() in db['url']:
                 user_dashboards.append(db)
     
-    print(f"Current user role: {current_user.role}")  # Adicionado para depuração
+    print(f"Current user role: {current_user.role}")
     return render_template('dashboard.html', user_dashboards=user_dashboards, user_name=current_user.name, user_role=current_user.role)
 
 @app.route('/logout')
 @login_required
 def logout():
-    start_time_str = session.pop('start_time', None)
-    if start_time_str:
-        start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
-        session_duration = datetime.now(pytz.timezone('America/Sao_Paulo')) - start_time
-        log_user_activity(current_user.email, f'logout (duration: {session_duration})')
-    else:
-        log_user_activity(current_user.email, 'logout (duration: unknown)')
-    logout_user()
-    return redirect(url_for('login'))
+    try:
+        print("Logout route accessed")
+        start_time_str = session.pop('start_time', None)
+        if start_time_str:
+            start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
+            session_duration = datetime.now(pytz.timezone('America/Sao_Paulo')) - start_time
+            log_user_activity(current_user.email, f'logout (duration: {session_duration})')
+        else:
+            log_user_activity(current_user.email, 'logout (duration: unknown)')
+        logout_user()
+        print("Logout successful")
+        return redirect(url_for('login'))
+    except Exception as e:
+        print(f"Error during logout: {e}")
+        return 'Internal Server Error', 500
 
 @app.route('/download_logs')
 @login_required
