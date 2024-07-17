@@ -40,34 +40,6 @@ def init_db():
 
 init_db()
 
-class SQLiteHandler(logging.Handler):
-    def emit(self, record):
-        try:
-            log_entry = self.format(record)
-            db = get_db()
-            cursor = db.cursor()
-            now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
-            print(f"Inserting log: {record.levelname}, {log_entry}, {now}")  # Adicionado para depuração
-            cursor.execute('INSERT INTO app_logs (level, message, timestamp) VALUES (?, ?, ?)', 
-                           (record.levelname, log_entry, now))
-            db.commit()
-            print(f"Log inserted: {record.levelname}, {log_entry}, {now}")
-        except Exception as e:
-            print(f"Error logging to database: {e}")
-
-@app.before_request
-def setup_logging():
-    if not app.debug:
-        if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
-            handler = SQLiteHandler()
-            handler.setLevel(logging.INFO)
-            formatter = logging.Formatter('%(message)s')
-            handler.setFormatter(formatter)
-            app.logger.addHandler(handler)
-            print("SQLiteHandler added to logger")
-        else:
-            print("SQLiteHandler already configured")
-
 class User(UserMixin):
     def __init__(self, id, email, password, role, dashboards, name):
         self.id = id
@@ -110,20 +82,51 @@ def log_user_activity(user_email, action):
     db.commit()
     print(f"User activity logged: {user_email}, {action}, {now}")
 
+class SQLiteHandler(logging.Handler):
+    def emit(self, record):
+        try:
+            log_entry = self.format(record)
+            db = get_db()
+            cursor = db.cursor()
+            now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
+            cursor.execute('INSERT INTO app_logs (level, message, timestamp) VALUES (?, ?, ?)', 
+                           (record.levelname, log_entry, now))
+            db.commit()
+            print(f"Log inserted: {log_entry}")
+        except Exception as e:
+            print(f"Error logging to database: {e}")
+
+@app.before_request
+def setup_logging():
+    if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
+        handler = SQLiteHandler()
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(message)s')
+        handler.setFormatter(formatter)
+        app.logger.addHandler(handler)
+        print("SQLiteHandler added to logger")
+
+@app.route('/view_logs')
+@login_required
+def view_logs():
+    if current_user.role != 'admin':
+        return 'Access denied', 403
+    
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT level, message, timestamp FROM app_logs ORDER BY timestamp DESC')
+    logs = cursor.fetchall()
+    
+    print(f"Logs fetched from database: {logs}")  # Adicionado para depuração
+    return render_template('view_logs.html', logs=logs)
+
 @app.route('/')
 def index():
-    app.logger.info("Index route accessed")
     return redirect(url_for('login'))
 
 @app.route('/test')
 def test():
-    app.logger.info("Test route accessed")
     return "Test route is working!"
-
-@app.route('/add_log')
-def add_log():
-    app.logger.info("Manual log entry")
-    return "Manual log added"
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -139,20 +142,6 @@ def login():
             return redirect(url_for('dashboard'))
         return 'Invalid credentials'
     return render_template('login.html')
-
-@app.route('/view_logs')
-@login_required
-def view_logs():
-    if current_user.role != 'admin':
-        return 'Access denied', 403
-    
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute('SELECT level, message, timestamp FROM app_logs ORDER BY timestamp DESC')
-    logs = cursor.fetchall()
-    
-    print(f"Logs fetched from database: {logs}")
-    return render_template('view_logs.html', logs=logs)
 
 @app.route('/dashboard')
 @login_required
@@ -210,6 +199,11 @@ def download_logs():
     if current_user.role == 'admin':
         return send_file(DATABASE, as_attachment=True)
     return 'Access denied', 403
+
+@app.route('/add_log')
+def add_log():
+    app.logger.info("Manual log added")
+    return "Manual log added"
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
