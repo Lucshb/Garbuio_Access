@@ -95,16 +95,6 @@ class SQLiteHandler(logging.Handler):
         except Exception as e:
             print(f"Error logging to database: {e}")
 
-@app.before_request
-def setup_logging():
-    if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
-        handler = SQLiteHandler()
-        handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(message)s')
-        handler.setFormatter(formatter)
-        app.logger.addHandler(handler)
-        print("SQLiteHandler added to logger")
-
 @app.route('/view_logs')
 @login_required
 def view_logs():
@@ -116,8 +106,18 @@ def view_logs():
     cursor.execute('SELECT level, message, timestamp FROM app_logs ORDER BY timestamp DESC')
     logs = cursor.fetchall()
     
-    print(f"Logs fetched from database: {logs}")  # Adicionado para depuração
+    print(f"Logs fetched: {logs}")  # Adicionado para depuração
     return render_template('view_logs.html', logs=logs)
+
+@app.before_request
+def setup_logging():
+    if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
+        handler = SQLiteHandler()
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(message)s')
+        handler.setFormatter(formatter)
+        app.logger.addHandler(handler)
+        print("SQLiteHandler added to logger")
 
 @app.route('/')
 def index():
@@ -202,16 +202,15 @@ def download_logs():
 @app.route('/test_db_write')
 def test_db_write():
     try:
-        log_user_activity('test@example.com', 'Test write')
-        app.logger.info('Test write to database')
-        return 'Write successful'
+        db = get_db()
+        cursor = db.cursor()
+        now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
+        cursor.execute('INSERT INTO app_logs (level, message, timestamp) VALUES (?, ?, ?)', 
+                       ('INFO', 'Test write to database', now))
+        db.commit()
+        return "Write successful"
     except Exception as e:
-        return str(e), 500
-
-@app.route('/add_log')
-def add_log():
-    app.logger.info("Manual log added")
-    return "Manual log added"
+        return f"Write failed: {e}"
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
