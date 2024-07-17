@@ -110,9 +110,9 @@ def view_logs():
     print(f"Logs fetched from database: {logs}")
     return render_template('view_logs.html', logs=logs)
 
-@app.before_first_request
+@app.before_request
 def setup_logging():
-    if not app.debug:
+    if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
         handler = SQLiteHandler()
         handler.setLevel(logging.INFO)
         formatter = logging.Formatter('%(message)s')
