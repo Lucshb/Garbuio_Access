@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Logs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h2 class="welcome-message">Logs do Aplicativo</h2>
+            <a href="{{ url_for('logout') }}" class="logout-button">
+                <img src="{{ url_for('static', filename='images/logout.png') }}" alt="Logout" class="logout-image">
+            </a>
+        </header>
+        <div class="logs-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nível</th>
+                        <th>Mensagem</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log[0] }}</td>
+                        <td>{{ log[1] }}</td>
+                        <td>{{ log[2] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
