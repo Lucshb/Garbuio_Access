@@ -37,8 +37,6 @@ def init_db():
                             timestamp TEXT NOT NULL
                           )''')
         db.commit()
-        print("Database initialized successfully")  # Adicione esta linha
-
 
 init_db()
 
@@ -98,16 +96,6 @@ class SQLiteHandler(logging.Handler):
         except Exception as e:
             print(f"Error logging to database: {e}")
 
-@app.before_request
-def setup_logging():
-    if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
-        handler = SQLiteHandler()
-        handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(message)s')
-        handler.setFormatter(formatter)
-        app.logger.addHandler(handler)
-        print("SQLiteHandler added to logger")
-
 @app.route('/view_logs')
 @login_required
 def view_logs():
@@ -119,25 +107,22 @@ def view_logs():
     cursor.execute('SELECT level, message, timestamp FROM app_logs ORDER BY timestamp DESC')
     logs = cursor.fetchall()
     
-    print(f"Logs fetched from database: {logs}")  # Adicionado para depuração
+    print(f"Logs fetched from database: {logs}")
     return render_template('view_logs.html', logs=logs)
+
+@app.before_first_request
+def setup_logging():
+    if not app.debug:
+        handler = SQLiteHandler()
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(message)s')
+        handler.setFormatter(formatter)
+        app.logger.addHandler(handler)
+        app.logger.info('SQLiteHandler added to logger')
 
 @app.route('/')
 def index():
     return redirect(url_for('login'))
-
-@app.route('/test_db_write')
-def test_db_write():
-    try:
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute('INSERT INTO app_logs (level, message, timestamp) VALUES (?, ?, ?)',
-                       ('INFO', 'Test write to database', datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')))
-        db.commit()
-        return "Write successful"
-    except Exception as e:
-        return f"Write failed: {e}"
-
 
 @app.route('/test')
 def test():
@@ -180,12 +165,6 @@ def dashboard():
         {"url": "https://app.powerbi.com/reportEmbed?reportId=93939e7b-780a-486c-b40d-22dee554aef1&autoAuth=true&ctid=cc2a95ea-335c-443b-8443-e9ad33ff9e04", "title": "Pátio"},
     ]
     
-    user_dashboards = []
-    for db in all_dashboards:
-        for user_db in current_user.dashboards:
-            if user_db.strip() in db['url']:
-                user_dashboards.append(db)
-    
     app.logger.info(f"Current user role: {current_user.role}")
     return render_template('dashboard.html', user_dashboards=user_dashboards, user_name=current_user.name, user_role=current_user.role)
 
@@ -217,8 +196,8 @@ def download_logs():
 
 @app.route('/add_log')
 def add_log():
-    app.logger.info("Manual log added")
-    return "Manual log added"
+    app.logger.info('Test write to database')
+    return 'Manual log added'
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
