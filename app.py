@@ -146,8 +146,8 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    print("Dashboard route accessed")  # Debug log
-    all_dashboards = [
+    print("Dashboard route accessed")
+    user_dashboards = [
         {"url": "https://app.powerbi.com/view?r=eyJrIjoiMmU1MTBmYTItMmY3MS00NjYzLTg3ZWUtOWQyYzI1YTgyYTQxIiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Central de BIs"},
         {"url": "https://app.powerbi.com/reportEmbed?reportId=196b835a-4b66-4f9d-b7e0-1d63d4f02e88&autoAuth=true&ctid=cc2a95ea-335c-443b-8443-e9ad33ff9e04", "title": "Faturamento"},
         {"url": "https://app.powerbi.com/view?r=eyJrIjoiMTljYjYxOGQtNDMzMy00MTE2LTkxMzYtNmZhMGM1MmMzZjgxIiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Controladoria Anderson"},
