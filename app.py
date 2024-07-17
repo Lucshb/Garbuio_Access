@@ -111,21 +111,18 @@ def view_logs():
 
 @app.before_request
 def setup_logging():
-    if not app.debug:
-        if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
-            handler = SQLiteHandler()
-            handler.setLevel(logging.INFO)
-            formatter = logging.Formatter('%(message)s')
-            handler.setFormatter(formatter)
-            app.logger.addHandler(handler)
+    if not hasattr(app, 'log_handler_added'):
+        handler = SQLiteHandler()
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(message)s')
+        handler.setFormatter(formatter)
+        app.logger.addHandler(handler)
+        app.log_handler_added = True
+        print("SQLiteHandler added to logger")
 
 @app.route('/')
 def index():
     return redirect(url_for('login'))
-
-@app.route('/test')
-def test():
-    return "Test route is working!"
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -202,7 +199,7 @@ def download_logs():
 @app.route('/test_db_write')
 def test_db_write():
     app.logger.info("Test write to database")
-    return "Write successful"
+    return 'Write successful'
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
