@@ -119,6 +119,11 @@ def test():
     app.logger.info("Test route accessed")
     return "Test route is working!"
 
+@app.route('/add_log')
+def add_log():
+    app.logger.info("Manual log entry")
+    return "Manual log added"
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
