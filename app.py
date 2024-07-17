@@ -91,7 +91,7 @@ class SQLiteHandler(logging.Handler):
                        (record.levelname, log_entry, now))
         db.commit()
 
-@app.before_first_request
+@app.before_request
 def setup_logging():
     if not app.debug:
         handler = SQLiteHandler()
