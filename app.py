@@ -95,7 +95,7 @@ class SQLiteHandler(logging.Handler):
         except Exception as e:
             print(f"Error logging to database: {e}")
 
-@app.before_first_request
+@app.before_request
 def setup_logging():
     if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
         handler = SQLiteHandler()
