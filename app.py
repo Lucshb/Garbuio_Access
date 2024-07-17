@@ -57,6 +57,7 @@ def load_users():
             row['dashboards'], 
             row['name']
         )
+    print(f"Users loaded: {list(users.keys())}")
     return users
 
 users = load_users()
