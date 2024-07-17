@@ -100,6 +100,19 @@ def setup_logging():
         handler.setFormatter(formatter)
         app.logger.addHandler(handler)
 
+@app.route('/view_logs')
+@login_required
+def view_logs():
+    if current_user.role != 'admin':
+        return 'Access denied', 403
+    
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT level, message, timestamp FROM app_logs ORDER BY timestamp DESC')
+    logs = cursor.fetchall()
+    
+    return render_template('view_logs.html', logs=logs)
+
 @app.route('/')
 def index():
     return redirect(url_for('login'))
