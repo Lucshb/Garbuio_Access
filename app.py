@@ -91,6 +91,7 @@ def login():
             login_user(user)
             session['start_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             log_user_activity(user.email, 'login')
+            print(f"User logged in: {user.email}, Role: {user.role}")  # Adicionado para depuração
             return redirect(url_for('dashboard'))
         return 'Invalid credentials'
     return render_template('login.html')
@@ -123,8 +124,8 @@ def dashboard():
             if user_db.strip() in db['url']:
                 user_dashboards.append(db)
     
-    print(f"User dashboards: {user_dashboards}")  # Debug log
-    return render_template('dashboard.html', user_dashboards=user_dashboards, user_name=current_user.name)
+    print(f"Current user role: {current_user.role}")  # Adicionado para depuração
+    return render_template('dashboard.html', user_dashboards=user_dashboards, user_name=current_user.name, user_role=current_user.role)
 
 @app.route('/logout')
 @login_required
