@@ -18,7 +18,7 @@ DATABASE = 'logs.db'
 
 # Configurar o Papertrail
 def setup_papertrail():
-    handler = logging.handlers.SyslogHandler(address=('logsN.papertrailapp.com', XXXXX))
+    handler = logging.handlers.SyslogHandler(address=('logs3.papertrailapp.com', 54965))
     handler.setFormatter(logging.Formatter('%(asctime)s %(message)s', datefmt='%b %d %H:%M:%S'))
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.INFO)
