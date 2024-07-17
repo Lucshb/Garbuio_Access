@@ -40,6 +40,33 @@ def init_db():
 
 init_db()
 
+class SQLiteHandler(logging.Handler):
+    def emit(self, record):
+        try:
+            log_entry = self.format(record)
+            db = get_db()
+            cursor = db.cursor()
+            now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
+            cursor.execute('INSERT INTO app_logs (level, message, timestamp) VALUES (?, ?, ?)', 
+                           (record.levelname, log_entry, now))
+            db.commit()
+            print(f"Log inserted: {record.levelname}, {log_entry}, {now}")
+        except Exception as e:
+            print(f"Error logging to database: {e}")
+
+@app.before_request
+def setup_logging():
+    if not app.debug:
+        if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
+            handler = SQLiteHandler()
+            handler.setLevel(logging.INFO)
+            formatter = logging.Formatter('%(message)s')
+            handler.setFormatter(formatter)
+            app.logger.addHandler(handler)
+            print("SQLiteHandler added to logger")
+        else:
+            print("SQLiteHandler already configured")
+
 class User(UserMixin):
     def __init__(self, id, email, password, role, dashboards, name):
         self.id = id
@@ -81,19 +108,6 @@ def log_user_activity(user_email, action):
     cursor.execute('INSERT INTO user_logs (email, action, timestamp) VALUES (?, ?, ?)', (user_email, action, now))
     db.commit()
     print(f"User activity logged: {user_email}, {action}, {now}")
-
-@app.before_request
-def setup_logging():
-    if not app.debug:
-        if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
-            handler = SQLiteHandler()
-            handler.setLevel(logging.INFO)
-            formatter = logging.Formatter('%(message)s')
-            handler.setFormatter(formatter)
-            app.logger.addHandler(handler)
-            print("SQLiteHandler added to logger")
-        else:
-            print("SQLiteHandler already configured")
 
 @app.route('/')
 def index():
