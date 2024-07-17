@@ -141,7 +141,9 @@ def logout():
 @app.route('/download_logs')
 @login_required
 def download_logs():
-    return send_file(DATABASE, as_attachment=True)
+    if current_user.role == 'admin':
+        return send_file(DATABASE, as_attachment=True)
+    return 'Access denied', 403
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
