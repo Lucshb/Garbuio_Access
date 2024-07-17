@@ -1,5 +1,6 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, session
+import sqlite3
+from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import pandas as pd
 from datetime import datetime
@@ -11,6 +12,26 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+DATABASE = 'logs.db'
+
+def get_db():
+    conn = sqlite3.connect(DATABASE)
+    return conn
+
+def init_db():
+    with app.app_context():
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS user_logs (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            email TEXT NOT NULL,
+                            action TEXT NOT NULL,
+                            timestamp TEXT NOT NULL
+                          )''')
+        db.commit()
+
+init_db()
+
 class User(UserMixin):
     def __init__(self, id, email, password, role, dashboards, name):
         self.id = id
@@ -21,13 +42,10 @@ class User(UserMixin):
         self.name = name
 
 def load_users():
-    print("Loading users from users.xlsx")  # Debug log
+    print("Loading users from users.xlsx")
     file_path = os.path.join(os.getcwd(), 'users.xlsx')
-    print(f"File path: {file_path}")  # Debug log
     if not os.path.exists(file_path):
-        print("File not found")  # Debug log
         return {}
-
     df = pd.read_excel(file_path)
     users = {}
     for _, row in df.iterrows():
@@ -39,32 +57,23 @@ def load_users():
             row['dashboards'], 
             row['name']
         )
-    print(f"Users loaded: {list(users.keys())}")  # Debug log
     return users
 
 users = load_users()
 
 @login_manager.user_loader
 def load_user(user_id):
-    print(f"Loading user: {user_id}")  # Debug log
     return users.get(user_id)
 
 def log_user_activity(user_email, action):
-    log_file = 'user_logs.xlsx'
+    db = get_db()
+    cursor = db.cursor()
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
-    try:
-        df = pd.read_excel(log_file)
-    except FileNotFoundError:
-        df = pd.DataFrame(columns=['email', 'action', 'timestamp'])
-
-    new_log = pd.DataFrame([[user_email, action, now]], columns=['email', 'action', 'timestamp'])
-    df = pd.concat([df, new_log], ignore_index=True)
-    df.to_excel(log_file, index=False)
+    cursor.execute('INSERT INTO user_logs (email, action, timestamp) VALUES (?, ?, ?)', (user_email, action, now))
+    db.commit()
 
 @app.route('/')
 def index():
-    print("Index route accessed, redirecting to login")  # Debug log
     return redirect(url_for('login'))
 
 @app.route('/test')
@@ -73,19 +82,15 @@ def test():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    print("Login route accessed")  # Debug log
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        print(f"Login attempt: {email}")  # Debug log
         user = users.get(email)
         if user and user.password == password:
             login_user(user)
             session['start_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             log_user_activity(user.email, 'login')
-            print(f"User logged in: {email}")  # Debug log
             return redirect(url_for('dashboard'))
-        print("Invalid credentials")  # Debug log
         return 'Invalid credentials'
     return render_template('login.html')
 
@@ -123,7 +128,6 @@ def dashboard():
 @app.route('/logout')
 @login_required
 def logout():
-    print("Logout route accessed")  # Debug log
     start_time_str = session.pop('start_time', None)
     if start_time_str:
         start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
@@ -134,7 +138,11 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+@app.route('/download_logs')
+@login_required
+def download_logs():
+    return send_file(DATABASE, as_attachment=True)
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    print(f"Starting app on port {port}")  # Debug log
     app.run(host='0.0.0.0', port=port)
