@@ -80,20 +80,7 @@ def log_user_activity(user_email, action):
     now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
     cursor.execute('INSERT INTO user_logs (email, action, timestamp) VALUES (?, ?, ?)', (user_email, action, now))
     db.commit()
-
-class SQLiteHandler(logging.Handler):
-    def emit(self, record):
-        try:
-            log_entry = self.format(record)
-            db = get_db()
-            cursor = db.cursor()
-            now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
-            cursor.execute('INSERT INTO app_logs (level, message, timestamp) VALUES (?, ?, ?)', 
-                           (record.levelname, log_entry, now))
-            db.commit()
-            print(f"Log inserted: {record.levelname}, {log_entry}, {now}")
-        except Exception as e:
-            print(f"Error logging to database: {e}")
+    print(f"User activity logged: {user_email}, {action}, {now}")
 
 @app.before_request
 def setup_logging():
@@ -114,6 +101,7 @@ def index():
 
 @app.route('/test')
 def test():
+    app.logger.info("Test route accessed")
     return "Test route is working!"
 
 @app.route('/login', methods=['GET', 'POST'])
