@@ -47,6 +47,7 @@ class SQLiteHandler(logging.Handler):
             db = get_db()
             cursor = db.cursor()
             now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
+            print(f"Inserting log: {record.levelname}, {log_entry}, {now}")  # Adicionado para depuração
             cursor.execute('INSERT INTO app_logs (level, message, timestamp) VALUES (?, ?, ?)', 
                            (record.levelname, log_entry, now))
             db.commit()
