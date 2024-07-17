@@ -91,9 +91,10 @@ class SQLiteHandler(logging.Handler):
             cursor.execute('INSERT INTO app_logs (level, message, timestamp) VALUES (?, ?, ?)', 
                            (record.levelname, log_entry, now))
             db.commit()
-            print(f"Log inserted: {log_entry}")
+            print(f"Log inserted: {record.levelname}, {log_entry}, {now}")
         except Exception as e:
             print(f"Error logging to database: {e}")
+
 
 @app.before_request
 def setup_logging():
@@ -138,8 +139,9 @@ def view_logs():
     cursor.execute('SELECT level, message, timestamp FROM app_logs ORDER BY timestamp DESC')
     logs = cursor.fetchall()
     
-    print(f"Logs fetched: {logs}")  # Adicionado para depuração
+    print(f"Logs fetched from database: {logs}")  # Adicionado para depuração
     return render_template('view_logs.html', logs=logs)
+
 
 @app.route('/dashboard')
 @login_required
