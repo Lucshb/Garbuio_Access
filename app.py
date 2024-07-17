@@ -95,15 +95,18 @@ class SQLiteHandler(logging.Handler):
         except Exception as e:
             print(f"Error logging to database: {e}")
 
-
 @app.before_request
 def setup_logging():
     if not app.debug:
-        handler = SQLiteHandler()
-        handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(message)s')
-        handler.setFormatter(formatter)
-        app.logger.addHandler(handler)
+        if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
+            handler = SQLiteHandler()
+            handler.setLevel(logging.INFO)
+            formatter = logging.Formatter('%(message)s')
+            handler.setFormatter(formatter)
+            app.logger.addHandler(handler)
+            print("SQLiteHandler added to logger")
+        else:
+            print("SQLiteHandler already configured")
 
 @app.route('/')
 def index():
@@ -141,7 +144,6 @@ def view_logs():
     
     print(f"Logs fetched from database: {logs}")  # Adicionado para depuração
     return render_template('view_logs.html', logs=logs)
-
 
 @app.route('/dashboard')
 @login_required
