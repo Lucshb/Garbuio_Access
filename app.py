@@ -1,5 +1,5 @@
 import logging
-import logging.handlers
+from logging.handlers import SysLogHandler
 import os
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -17,11 +17,17 @@ login_manager.login_view = 'login'
 DATABASE = 'logs.db'
 
 # Configurar o Papertrail
+PAPERTRAIL_ADDRESS = 'logs3.papertrailapp.com'
+PAPERTRAIL_PORT = 54965
+
+def 
+
 def setup_papertrail():
-    handler = logging.handlers.SyslogHandler(address=('logs3.papertrailapp.com', 54965))
-    handler.setFormatter(logging.Formatter('%(asctime)s %(message)s', datefmt='%b %d %H:%M:%S'))
-    app.logger.addHandler(handler)
-    app.logger.setLevel(logging.INFO)
+    handler = SysLogHandler(address=(PAPERTRAIL_ADDRESS, PAPERTRAIL_PORT))
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s %(name)s: %(message)s', datefmt='%b %d %H:%M:%S')
+    handler.setFormatter(formatter)
+    logging.getLogger().addHandler(handler)
 
 setup_papertrail()
 
