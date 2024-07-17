@@ -13,6 +13,9 @@
             <a href="{{ url_for('logout') }}" class="logout-button">
                 <img src="{{ url_for('static', filename='images/logout.png') }}" alt="Logout" class="logout-image">
             </a>
+            <a href="{{ url_for('download_logs') }}" class="download-logs-button">
+                Download Logs
+            </a>
         </header>
         <div class="dashboards">
             {% for dashboard in user_dashboards %}
