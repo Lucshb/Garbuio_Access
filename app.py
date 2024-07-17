@@ -69,7 +69,7 @@ def load_user(user_id):
 def log_user_activity(user_email, action):
     db = get_db()
     cursor = db.cursor()
-    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
     cursor.execute('INSERT INTO user_logs (email, action, timestamp) VALUES (?, ?, ?)', (user_email, action, now))
     db.commit()
 
@@ -89,7 +89,7 @@ def login():
         user = users.get(email)
         if user and user.password == password:
             login_user(user)
-            session['start_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            session['start_time'] = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
             log_user_activity(user.email, 'login')
             print(f"User logged in: {user.email}, Role: {user.role}")  # Adicionado para depuração
             return redirect(url_for('dashboard'))
@@ -133,7 +133,7 @@ def logout():
     start_time_str = session.pop('start_time', None)
     if start_time_str:
         start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
-        session_duration = datetime.now() - start_time
+        session_duration = datetime.now(pytz.timezone('America/Sao_Paulo')) - start_time
         log_user_activity(current_user.email, f'logout (duration: {session_duration})')
     else:
         log_user_activity(current_user.email, 'logout (duration: unknown)')
