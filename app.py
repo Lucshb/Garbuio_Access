@@ -37,6 +37,8 @@ def init_db():
                             timestamp TEXT NOT NULL
                           )''')
         db.commit()
+        print("Database initialized successfully")  # Adicione esta linha
+
 
 init_db()
 
@@ -123,6 +125,19 @@ def view_logs():
 @app.route('/')
 def index():
     return redirect(url_for('login'))
+
+@app.route('/test_db_write')
+def test_db_write():
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute('INSERT INTO app_logs (level, message, timestamp) VALUES (?, ?, ?)',
+                       ('INFO', 'Test write to database', datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')))
+        db.commit()
+        return "Write successful"
+    except Exception as e:
+        return f"Write failed: {e}"
+
 
 @app.route('/test')
 def test():
