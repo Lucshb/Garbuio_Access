@@ -14,9 +14,11 @@
                 <img src="{{ url_for('static', filename='images/logout.png') }}" alt="Logout" class="logout-image">
             </a>
             {% if user_role == 'admin' %}
-            <a href="{{ url_for('download_logs') }}" class="download-logs-button">
-                Download Logs
-            </a>
+            <form method="get" action="{{ url_for('download_logs') }}">
+                <button class="download-button" type="submit">
+                    <img src="{{ url_for('static', filename='images/image.png') }}" alt="Download Logs" class="download-image">
+                </button>
+            </form>
             {% endif %}
         </header>
         <div class="dashboards">
