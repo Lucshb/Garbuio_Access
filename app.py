@@ -195,7 +195,7 @@ def logout():
 @login_required
 def download_logs():
     if current_user.role == 'admin':
-        return send_file(DATABASE, as_attachment=True)
+        return send_file(DATABASE, as_attachment=True, download_name='logs.db')
     return 'Access denied', 403
 
 if __name__ == '__main__':
