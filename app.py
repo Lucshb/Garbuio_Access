@@ -1,7 +1,6 @@
 import os
 import sqlite3
 import logging
-from logging.handlers import SysLogHandler
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import pandas as pd
@@ -95,19 +94,6 @@ class SQLiteHandler(logging.Handler):
             print(f"Log inserted: {log_entry}")
         except Exception as e:
             print(f"Error logging to database: {e}")
-
-# Configurações de Papertrail
-PAPERTRAIL_ADDRESS = 'logs3.papertrailapp.com'
-PAPERTRAIL_PORT = 54965
-
-def setup_papertrail():
-    handler = SysLogHandler(address=(PAPERTRAIL_ADDRESS, PAPERTRAIL_PORT))
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s %(name)s: %(message)s', datefmt='%b %d %H:%M:%S')
-    handler.setFormatter(formatter)
-    logging.getLogger().addHandler(handler)
-
-setup_papertrail()
 
 @app.before_request
 def setup_logging():
