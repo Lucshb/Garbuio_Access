@@ -95,15 +95,20 @@ class SQLiteHandler(logging.Handler):
         except Exception as e:
             print(f"Error logging to database: {e}")
 
-@app.before_request
 def setup_logging():
-    if not any(isinstance(handler, SQLiteHandler) for handler in app.logger.handlers):
+    if not app.debug:
         handler = SQLiteHandler()
         handler.setLevel(logging.INFO)
         formatter = logging.Formatter('%(message)s')
         handler.setFormatter(formatter)
         app.logger.addHandler(handler)
-        app.logger.info("SQLiteHandler added to logger")
+
+setup_logging()
+
+@app.route('/add_log')
+def add_log():
+    app.logger.info("Test write to database")
+    return "Manual log added"
 
 @app.route('/view_logs')
 @login_required
@@ -118,13 +123,39 @@ def view_logs():
     
     return render_template('view_logs.html', logs=logs)
 
+@app.route('/test_db_write')
+def test_db_write():
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
+        cursor.execute('INSERT INTO app_logs (level, message, timestamp) VALUES (?, ?, ?)', 
+                       ("INFO", "Test write to database", now))
+        db.commit()
+        return "Write successful"
+    except Exception as e:
+        return f"Write failed: {e}"
+
+@app.route('/download_logs')
+@login_required
+def download_logs():
+    if current_user.role != 'admin':
+        return 'Access denied', 403
+    
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM app_logs')
+    logs = cursor.fetchall()
+    
+    df = pd.DataFrame(logs, columns=['ID', 'Level', 'Message', 'Timestamp'])
+    excel_path = 'logs.xlsx'
+    df.to_excel(excel_path, index=False)
+    
+    return send_file(excel_path, as_attachment=True)
+
 @app.route('/')
 def index():
     return redirect(url_for('login'))
-
-@app.route('/test')
-def test():
-    return "Test route is working!"
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -191,12 +222,6 @@ def logout():
         app.logger.error(f"Error during logout: {e}")
         return 'Internal Server Error', 500
 
-@app.route('/download_logs')
-@login_required
-def download_logs():
-    if current_user.role == 'admin':
-        return send_file(DATABASE, as_attachment=True, download_name='logs.db')
-    return 'Access denied', 403
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
