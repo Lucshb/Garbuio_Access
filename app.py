@@ -186,12 +186,12 @@ def dashboard():
         {"url": "https://app.powerbi.com/view?r=eyJrIjoiMGM5YzM3MGQtZTkwZi00NzFhLTlkNzYtNmFkNTk4ZGUwODdlIiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Controladoria Janaina"},
         {"url": "https://app.powerbi.com/view?r=eyJrIjoiMWEzODYyNDctNTU1NS00OWZlLWE2NGYtZGVmOTM3NjkyMTI1IiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Controladoria Anderson"},
         {"url": "https://app.powerbi.com/reportEmbed?reportId=385a53c2-365e-416c-9ca5-f9c3f08bcd11&autoAuth=true&ctid=cc2a95ea-335c-443b-8443-e9ad33ff9e04", "title": "Controladoria Exportável"},
-        {"url": "https://app.powerbi.com/reportEmbed?reportId=0ba6b5ca-c1a0-44b6-9033-db6491ca6f36&autoAuth=true&ctid=cc2a95ea-335c-443b-8443-e9ad33ff9e04", "title": "Abastecimento"},
-        {"url": "https://app.powerbi.com/reportEmbed?reportId=c84a7784-b70a-4a52-8ba8-098381066e82&autoAuth=true&ctid=cc2a95ea-335c-443b-8443-e9ad33ff9e04", "title": "Suprimentos"},
-        {"url": "https://app.powerbi.com/reportEmbed?reportId=2cccbc6d-b005-4c1d-8a44-044289eca7b5&autoAuth=true&ctid=cc2a95ea-335c-443b-8443-e9ad33ff9e04", "title": "Recursos Humanos"},
-        {"url": "https://app.powerbi.com/reportEmbed?reportId=2b57c4a9-f624-4e18-99a4-9350ae5ee0df&autoAuth=true&ctid=cc2a95ea-335c-443b-8443-e9ad33ff9e04", "title": "Manutenção"},
-        {"url": "https://app.powerbi.com/reportEmbed?reportId=192565df-af8d-4e7e-bf7b-d5ca570095b4&autoAuth=true&ctid=cc2a95ea-335c-443b-8443-e9ad33ff9e04", "title": "Contas a Pagar"},
-        {"url": "https://app.powerbi.com/reportEmbed?reportId=93939e7b-780a-486c-b40d-22dee554aef1&autoAuth=true&ctid=cc2a95ea-335c-443b-8443-e9ad33ff9e04", "title": "Pátio"},
+        {"url": "https://app.powerbi.com/view?r=eyJrIjoiZjg0YTQ5OGQtOWI2MC00YWFkLTk3ZmMtYzcyYTMxY2U0YTcyIiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Abastecimento"},
+        {"url": "https://app.powerbi.com/view?r=eyJrIjoiN2IwYjFhZGUtYWYwNC00NjI2LWFkMGYtMmVjYzE2MTI1ZWM3IiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Suprimentos"},
+        {"url": "https://app.powerbi.com/view?r=eyJrIjoiOTBlNDlkNmUtMWM1Ni00MWE2LThiMDEtMDIwMmVmNmNjN2RjIiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Recursos Humanos"},
+        {"url": "https://app.powerbi.com/view?r=eyJrIjoiZDYzODQ2MGYtZjU4NS00Y2M1LWFjZDEtNGViMzIyYjNlZGQwIiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Manutenção"},
+        {"url": "https://app.powerbi.com/view?r=eyJrIjoiNmMxYzJhNTctYmNkZC00MzVlLWI1ZTMtN2U0NWE2YjYxMjY4IiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Contas a Pagar"},
+        {"url": "https://app.powerbi.com/view?r=eyJrIjoiYWQxMGYwNTgtZWEwMi00OTg0LTgyZjAtYTI0ZDcwY2NiMzkzIiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Pátio"},
     ]
     
     user_dashboards = []
