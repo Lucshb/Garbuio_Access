@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import io
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import pandas as pd
@@ -117,7 +118,7 @@ def dashboard():
         {"url": "https://app.powerbi.com/view?r=eyJrIjoiNmMxYzJhNTctYmNkZC00MzVlLWI1ZTMtN2U0NWE2YjYxMjY4IiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Contas a Pagar"},
         {"url": "https://app.powerbi.com/view?r=eyJrIjoiYWQxMGYwNTgtZWEwMi00OTg0LTgyZjAtYTI0ZDcwY2NiMzkzIiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Pátio"},
     ]
-    
+
     user_dashboards = []
     for db in all_dashboards:
         for user_db in current_user.dashboards:
@@ -150,7 +151,31 @@ def logout():
 @login_required
 def download_logs():
     if current_user.role == 'admin':
-        return send_file(DATABASE, as_attachment=True)
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute('SELECT email, action, timestamp FROM user_logs')
+        logs = cursor.fetchall()
+
+        if not logs:
+            return 'No logs found'
+
+        output = io.BytesIO()
+        workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+        worksheet = workbook.add_worksheet()
+
+        worksheet.write(0, 0, 'Email')
+        worksheet.write(0, 1, 'Action')
+        worksheet.write(0, 2, 'Timestamp')
+
+        for row_num, log in enumerate(logs, 1):
+            worksheet.write(row_num, 0, log[0])
+            worksheet.write(row_num, 1, log[1])
+            worksheet.write(row_num, 2, log[2])
+
+        workbook.close()
+        output.seek(0)
+
+        return send_file(output, attachment_filename='logs.xlsx', as_attachment=True)
     return 'Access denied', 403
 
 if __name__ == '__main__':
