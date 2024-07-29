@@ -7,7 +7,7 @@ body {
     justify-content: center;
     align-items: flex-start;
     height: 100vh;
-    overflow: auto;
+    overflow: hidden; /* Alterado de auto para hidden */
 }
 
 .dashboard-container {
@@ -18,6 +18,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow: hidden; /* Adicionado para esconder barras de rolagem adicionais */
 }
 
 .dashboard-header {
@@ -47,7 +48,7 @@ body {
     padding: 0;
 }
 
-.logout-image {
+.logout-image, .download-image {
     width: 40px;
     height: 40px;
     object-fit: cover;
@@ -61,11 +62,8 @@ body {
 .dashboards {
     flex: 1;
     display: block;
-    flex-direction: column;
-    gap: 20px;
-    overflow-y: auto;
+    overflow-y: auto; /* Garantir que haja apenas uma barra de rolagem vertical */
     width: 100%;
-    height: 100%;
 }
 
 .dashboard-item {
@@ -76,7 +74,6 @@ body {
     width: 100%;
     height: calc(100vh - 150px);
     border: 0;
-    margin-bottom: 20px;
 }
 
 .dashboard-title {
@@ -85,22 +82,3 @@ body {
     font-size: 1.5em;
     font-weight: bold;
 }
-
-.download-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-}
-
-.download-image {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-    margin-left: 10px;
-}
-
-.download-button:hover .download-image {
-    opacity: 0.8;
-}
-
