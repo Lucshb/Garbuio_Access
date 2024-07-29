@@ -72,8 +72,8 @@ def load_user(user_id):
 def log_user_activity(user_email, action):
     db = get_db()
     cursor = db.cursor()
-    ##now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
-    cursor.execute('INSERT INTO user_logs (email, action, timestamp) VALUES (?, ?, ?)', (user_email, action))
+    now = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute('INSERT INTO user_logs (email, action, timestamp) VALUES (?, ?, ?)', (user_email, action, now))
     db.commit()
 
 @app.route('/')
