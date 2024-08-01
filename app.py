@@ -115,7 +115,7 @@ def login():
 def dashboard():
     all_dashboards = [
         {"url": "https://app.powerbi.com/view?r=eyJrIjoiMmU1MTBmYTItMmY3MS00NjYzLTg3ZWUtOWQyYzI1YTgyYTQxIiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Central de BIs"},
-        {"url": "https://app.powerbi.com/view?r=eyJrIjoiNTBjZGYxZDMtOGUzNy00OTBjLWI1NTQtNjAxM2QyOWMzMDkyIiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9&chromeless=true", "title": "Faturamento"},
+        {"url": "https://app.powerbi.com/view?r=eyJrIjoiNTBjZGYxZDMtOGUzNy00OTBjLWI1NTQtNjAxM2QyOWMzMDkyIiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9?chromeless=true", "title": "Faturamento"},
         {"url": "https://app.powerbi.com/view?r=eyJrIjoiZmYzYTI4MWItMjYyNS00NWNmLTllYTUtODk5NDliYTJjMzc1IiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Controladoria Marina"},
         {"url": "https://app.powerbi.com/view?r=eyJrIjoiMTljYjYxOGQtNDMzMy00MTE2LTkxMzYtNmZhMGM1MmMzZjgxIiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Controladoria Anderson"},
         {"url": "https://app.powerbi.com/view?r=eyJrIjoiYTIyNGRkZjUtYTBkMS00ZjgxLTgyOWMtOTcxYTc4NjRiMDQ2IiwidCI6ImNjMmE5NWVhLTMzNWMtNDQzYi04NDQzLWU5YWQzM2ZmOWUwNCJ9", "title": "Controladoria Luiz"},
