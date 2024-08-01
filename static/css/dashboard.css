@@ -7,7 +7,8 @@ body {
     justify-content: center;
     align-items: flex-start;
     height: 100vh;
-    overflow: hidden; /* Alterado de auto para hidden */
+    overflow-x: auto; /* Alterado de auto para hidden */
+    overflow-y: auto;
 }
 
 .dashboard-container {
