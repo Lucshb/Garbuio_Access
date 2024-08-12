@@ -137,8 +137,11 @@ def dashboard():
             if user_db.strip() in db['url']:
                 user_dashboards.append(db)
     
+    # Pegue o primeiro dashboard da lista do usuário
+    first_dashboard_id = f'section0' if user_dashboards else None
+    
     print(f"Current user role: {current_user.role}")
-    return render_template('dashboard.html', user_dashboards=user_dashboards, user_name=current_user.name, user_role=current_user.role)
+    return render_template('dashboard.html', user_dashboards=user_dashboards, user_name=current_user.name, user_role=current_user.role, first_dashboard_id=first_dashboard_id)
 
 @app.route('/logout')
 @login_required
