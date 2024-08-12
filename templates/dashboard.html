@@ -21,6 +21,7 @@
         </header>
 
         <div class="shortcuts">
+            <h2>Atalhos para Dashboards</h2>
             <div class="shortcut-buttons">
                 {% for dashboard in user_dashboards %}
                     <a href="#section{{ loop.index0 }}" class="shortcut-button">
@@ -30,7 +31,6 @@
                 {% endfor %}
             </div>
         </div>
-        
 
         <div class="dashboards">
             {% for dashboard in user_dashboards %}
@@ -53,8 +53,14 @@
         });
     });
 
-    // Exibe a primeira seção ao carregar a página
-    document.querySelector('.dashboard-section').style.display = 'block';
+    // Exibe a seção do primeiro dashboard automaticamente
+    const firstDashboard = document.querySelector('#{{ first_dashboard_id }}');
+    if (firstDashboard) {
+        document.querySelectorAll('.dashboard-section').forEach(section => {
+            section.style.display = 'none';
+        });
+        firstDashboard.style.display = 'block';
+    }
 </script>
 </body>
 </html>
