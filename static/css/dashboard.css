@@ -4,31 +4,37 @@ body {
     margin: 0;
     padding: 0;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center;
     height: 100vh;
-    overflow-x: auto; /* Alterado de auto para hidden */
-    overflow-y: auto;
+    overflow: hidden;
 }
 
-.dashboard-container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
+.content {
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden; /* Adicionado para esconder barras de rolagem adicionais */
+    overflow-y: auto;
+    width: 100%;
+    max-width: 1200px;  /* Definindo a largura máxima */
+    box-sizing: border-box;
+    height: 100vh;
+}
+
+.dashboard-header,
+.shortcuts {
+    width: 100%;  /* Garantindo que ambas as seções tenham a mesma largura */
+    max-width: 1200px;  /* Definindo a mesma largura máxima */
+    box-sizing: border-box;  /* Incluindo o padding na largura */
+    margin-left: auto;  /* Centralizando */
+    margin-right: auto; /* Centralizando */
 }
 
 .dashboard-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     background-color: #0ad117;
-    padding: 10px 20px;
+    padding: 8px 16px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     color: white;
@@ -40,6 +46,7 @@ body {
     color: #FFFFFF;
     margin: 0;
     flex-grow: 1;
+    text-align: center;
 }
 
 .logout-button {
@@ -50,30 +57,101 @@ body {
 }
 
 .logout-image, .download-image {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     object-fit: cover;
-    margin-left: 10px;
+    margin-left: 8px;
 }
 
 .logout-button:hover .logout-image {
     opacity: 0.8;
 }
 
+.shortcuts {
+    margin-bottom: 20px;
+    padding: 15px;
+    text-align: center;
+    background-color: #f0f9f0;
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.shortcuts h2 {
+    font-size: 1.6em;
+    margin-bottom: 10px;
+    color: #007bff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.shortcut-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.shortcut-button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center; /* Garante que o texto e o ícone estejam alinhados */
+}
+
+.shortcut-button img {
+    margin-right: 6px; /* Espaço entre o ícone e o texto */
+    width: 18px; /* Tamanho do ícone */
+    height: 18px;
+}
+
+.shortcut-button:hover {
+    background-color: #0056b3;
+    border: 2px solid #004494;
+    transform: translateY(-2px);
+}
+
+.shortcut-button:active {
+    transform: translateY(0);
+}
+
+.shortcut-button img {
+    margin-right: 6px;
+    width: 18px;
+    height: 18px;
+}
+
 .dashboards {
-    flex: 1;
-    display: block;
-    overflow-y: auto; /* Garantir que haja apenas uma barra de rolagem vertical */
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
     width: 100%;
 }
 
 .dashboard-item {
     margin-bottom: 20px;
+    display: none;
 }
 
-.dashboards iframe {
+.dashboard-item:first-child {
+    display: block;
+}
+
+.dashboard-section {
+    margin-bottom: 20px;
+}
+
+.dashboard-item iframe {
     width: 100%;
-    height: calc(100vh - 150px);
+    height: calc(100vh - 200px);
     border: 0;
 }
 
