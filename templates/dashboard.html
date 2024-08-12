@@ -7,28 +7,54 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
 <body>
-    <div class="dashboard-container">
+    <div class="content">
         <header class="dashboard-header">
             <h2 class="welcome-message">Bem vindo, {{ user_name }}! Você está acessando o dashboard gerencial da Garbuio.</h2>
             <a href="{{ url_for('logout') }}" class="logout-button">
                 <img src="{{ url_for('static', filename='images/logout.png') }}" alt="Logout" class="logout-image">
             </a>
             {% if user_role == 'admin' %}
-            <form method="get" action="{{ url_for('download_logs') }}">
-                <button class="download-button" type="submit">
-                    <img src="{{ url_for('static', filename='images/image.png') }}" alt="Download Logs" class="download-image">
-                </button>
-            </form>
+            <a href="{{ url_for('download_logs') }}" class="download-logs-button">
+                <img src="{{ url_for('static', filename='images/image.png') }}" alt="Download Logs" class="download-image">
+            </a>
             {% endif %}
         </header>
+
+        <div class="shortcuts">
+            <div class="shortcut-buttons">
+                {% for dashboard in user_dashboards %}
+                    <a href="#section{{ loop.index0 }}" class="shortcut-button">
+                        <img src="{{ url_for('static', filename='images/icon_dashboard.png') }}" alt="Icon"> 
+                        {{ dashboard.title }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        
+
         <div class="dashboards">
             {% for dashboard in user_dashboards %}
-                <div class="dashboard-item">
-                    <h3 class="dashboard-title">{{ dashboard.title }}</h3>
-                    <iframe src="{{ dashboard.url }}" frameborder="0"></iframe>
+                <div id="section{{ loop.index0 }}" class="dashboard-section">
+                    <h2>{{ dashboard.title }}</h2>
+                    <iframe src="{{ dashboard.url }}" width="100%" height="600px" frameborder="0"></iframe>
                 </div>
             {% endfor %}
         </div>
     </div>
+<script>
+    document.querySelectorAll('.shortcut-button').forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            document.querySelectorAll('.dashboard-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            const target = document.querySelector(this.getAttribute('href'));
+            target.style.display = 'block';
+        });
+    });
+
+    // Exibe a primeira seção ao carregar a página
+    document.querySelector('.dashboard-section').style.display = 'block';
+</script>
 </body>
 </html>
